@@ -16,14 +16,40 @@ const {
 const app = express();
 
 // Middleware to handle CORS
-app.use(
-  cors({
-    origin: "https://interview-prep-ai-eight-delta.vercel.app/",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+const allowedOriginsEnv = process.env.ALLOWED_ORIGINS || "";
+const allowedOrigins = allowedOriginsEnv
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+// Optional: allow any Vercel preview URL that starts with your project prefix.
+// WARNING: use this only if you're okay allowing previews under that pattern.
+const allowVercelPreview = true;
+const vercelPreviewRegex = /^https:\/\/interview-prep.*\.vercel\.app$/i;
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow non-browser requests (curl, server-to-server) that have no origin
+    if (!origin) return callback(null, true);
+
+    // exact match against env list
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    // optional: allow vercel previews matching pattern
+    if (allowVercelPreview && vercelPreviewRegex.test(origin))
+      return callback(null, true);
+
+    // otherwise block
+    return callback(new Error("CORS not allowed by server: " + origin));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  credentials: true, // needed if you use cookies
+};
+
+// Apply CORS middleware and ensure preflight handled
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 connectDB();
 
