@@ -18,7 +18,8 @@ const app = express();
 // Middleware to handle CORS
 app.use(
   cors({
-    origin: "https://interview-prep-ai-0c50.onrender.com",
+    origin:
+      "https://interview-prep-pj7lfv1mi-aaditya-agrawals-projects-e8672fba.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
